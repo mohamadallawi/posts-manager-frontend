@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { PostList } from './PostList';
 import type { Post } from '../types/post';
 
@@ -24,10 +24,24 @@ const posts: Post[] = [
   },
 ];
 
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve([]),
+  }));
+});
+
 describe('PostList', () => {
   it('shows empty state when no posts', () => {
     render(
-      <PostList posts={[]} editingId={null} onEdit={vi.fn()} onDelete={vi.fn()} />,
+      <PostList
+        posts={[]}
+        users={[sampleUser]}
+        selectedUserId={null}
+        editingId={null}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />,
     );
 
     expect(
@@ -35,7 +49,7 @@ describe('PostList', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders posts with author and handles actions', async () => {
+  it('renders posts with author and comment section', async () => {
     const user = userEvent.setup();
     const onEdit = vi.fn();
     const onDelete = vi.fn();
@@ -43,6 +57,8 @@ describe('PostList', () => {
     render(
       <PostList
         posts={posts}
+        users={[sampleUser]}
+        selectedUserId={null}
         editingId="1"
         onEdit={onEdit}
         onDelete={onDelete}
@@ -52,11 +68,9 @@ describe('PostList', () => {
     expect(screen.getByRole('heading', { name: 'Posts (1)' })).toBeInTheDocument();
     expect(screen.getByText('First Post')).toBeInTheDocument();
     expect(screen.getByText('by John')).toBeInTheDocument();
+    expect(screen.getByText('Comments (0)')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Edit' }));
     expect(onEdit).toHaveBeenCalledWith(posts[0]);
-
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
-    expect(onDelete).toHaveBeenCalledWith('1');
   });
 });

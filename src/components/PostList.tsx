@@ -1,7 +1,11 @@
 import type { Post } from '../types/post';
+import type { User } from '../types/user';
+import { CommentSection } from './CommentSection';
 
 interface PostListProps {
   posts: Post[];
+  users: User[];
+  selectedUserId: string | null;
   editingId: string | null;
   onEdit: (post: Post) => void;
   onDelete: (id: string) => void;
@@ -11,7 +15,14 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString();
 }
 
-export function PostList({ posts, editingId, onEdit, onDelete }: PostListProps) {
+export function PostList({
+  posts,
+  users,
+  selectedUserId,
+  editingId,
+  onEdit,
+  onDelete,
+}: PostListProps) {
   if (posts.length === 0) {
     return (
       <div className="empty-state">
@@ -48,6 +59,11 @@ export function PostList({ posts, editingId, onEdit, onDelete }: PostListProps) 
               Delete
             </button>
           </footer>
+          <CommentSection
+            postId={post.id}
+            users={users}
+            defaultUserId={selectedUserId}
+          />
         </article>
       ))}
     </div>

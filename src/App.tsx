@@ -164,6 +164,8 @@ export default function App() {
           ) : (
             <PostList
               posts={posts}
+              users={users}
+              selectedUserId={selectedUserId}
               editingId={editingPost?.id ?? null}
               onEdit={setEditingPost}
               onDelete={handleDeletePost}
